@@ -1,4 +1,4 @@
-name: 📸 Camerrapro AI Camera - Build APK
+name: Camerrapro AI Camera - Build APK
 
 on:
   workflow_dispatch:
@@ -16,41 +16,34 @@ env:
 
 jobs:
   build:
-    name: 🚀 Build Camera APK
+    name: Build Camera APK
     runs-on: ubuntu-latest
 
     steps:
 
-      # ---------------------------------------------------------
-      # 1. Checkout repository
-      # ---------------------------------------------------------
-      - name: 📥 Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # ---------------------------------------------------------
-      # 2. Java 17
-      # ---------------------------------------------------------
-      - name: ☕ Setup Java 17
+      - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
 
-      # ---------------------------------------------------------
-      # 3. Generate complete Android project
-      # ---------------------------------------------------------
-      - name: 🏗️ Generate Android Project
+      - name: Generate Android Project
         shell: bash
         run: |
 
           set -e
 
-          echo "=========================================="
-          echo "📸 Generating Camerrapro AI Camera"
-          echo "=========================================="
+          echo "Generating Camerrapro AI Camera..."
 
-          rm -rf app gradle settings.gradle.kts build.gradle.kts \
-            gradle.properties local.properties
+          rm -rf app
+          rm -rf gradle
+          rm -f settings.gradle.kts
+          rm -f build.gradle.kts
+          rm -f gradle.properties
+          rm -f local.properties
 
           mkdir -p app/src/main/java/com/camerrapro/aijavadevs
           mkdir -p app/src/main/res/drawable
@@ -60,11 +53,6 @@ jobs:
           mkdir -p app/src/main/res/mipmap-xxhdpi
           mkdir -p app/src/main/res/mipmap-xxxhdpi
           mkdir -p app/src/main/res/values
-          mkdir -p app/src/main/res/xml
-
-          # -----------------------------------------------------
-          # settings.gradle.kts
-          # -----------------------------------------------------
 
           cat > settings.gradle.kts <<'EOF'
           pluginManagement {
@@ -77,6 +65,7 @@ jobs:
 
           dependencyResolutionManagement {
               repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+
               repositories {
                   google()
                   mavenCentral()
@@ -87,10 +76,6 @@ jobs:
           include(":app")
           EOF
 
-          # -----------------------------------------------------
-          # Root build.gradle.kts
-          # -----------------------------------------------------
-
           cat > build.gradle.kts <<EOF
           plugins {
               id("com.android.application") version "${AGP_VERSION}" apply false
@@ -98,20 +83,12 @@ jobs:
           }
           EOF
 
-          # -----------------------------------------------------
-          # gradle.properties
-          # -----------------------------------------------------
-
           cat > gradle.properties <<'EOF'
           org.gradle.jvmargs=-Xmx4096m -Dfile.encoding=UTF-8
           android.useAndroidX=true
           android.nonTransitiveRClass=true
           kotlin.code.style=official
           EOF
-
-          # -----------------------------------------------------
-          # App build.gradle.kts
-          # -----------------------------------------------------
 
           cat > app/build.gradle.kts <<EOF
           plugins {
@@ -137,7 +114,9 @@ jobs:
                       isShrinkResources = true
 
                       proguardFiles(
-                          getDefaultProguardFile("proguard-android-optimize.txt"),
+                          getDefaultProguardFile(
+                              "proguard-android-optimize.txt"
+                          ),
                           "proguard-rules.pro"
                       )
                   }
@@ -167,40 +146,51 @@ jobs:
           dependencies {
 
               implementation("androidx.core:core-ktx:1.17.0")
+
               implementation("androidx.appcompat:appcompat:1.7.1")
-              implementation("com.google.android.material:material:1.13.0")
 
-              implementation("androidx.activity:activity-ktx:1.11.0")
-              implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.3")
+              implementation(
+                  "com.google.android.material:material:1.13.0"
+              )
 
-              implementation("androidx.camera:camera-core:${CAMERAX_VERSION}")
-              implementation("androidx.camera:camera-camera2:${CAMERAX_VERSION}")
-              implementation("androidx.camera:camera-lifecycle:${CAMERAX_VERSION}")
-              implementation("androidx.camera:camera-view:${CAMERAX_VERSION}")
+              implementation(
+                  "androidx.activity:activity-ktx:1.11.0"
+              )
 
+              implementation(
+                  "androidx.lifecycle:lifecycle-runtime-ktx:2.9.3"
+              )
+
+              implementation(
+                  "androidx.camera:camera-core:${CAMERAX_VERSION}"
+              )
+
+              implementation(
+                  "androidx.camera:camera-camera2:${CAMERAX_VERSION}"
+              )
+
+              implementation(
+                  "androidx.camera:camera-lifecycle:${CAMERAX_VERSION}"
+              )
+
+              implementation(
+                  "androidx.camera:camera-view:${CAMERAX_VERSION}"
+              )
           }
           EOF
 
-          # -----------------------------------------------------
-          # ProGuard
-          # -----------------------------------------------------
-
           cat > app/proguard-rules.pro <<'EOF'
-          # Camerrapro AI Camera
           -keep class androidx.camera.** { *; }
           -dontwarn androidx.camera.**
           EOF
-
-          # -----------------------------------------------------
-          # AndroidManifest.xml
-          # -----------------------------------------------------
 
           cat > app/src/main/AndroidManifest.xml <<'EOF'
           <?xml version="1.0" encoding="utf-8"?>
 
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-              <uses-permission android:name="android.permission.CAMERA" />
+              <uses-permission
+                  android:name="android.permission.CAMERA" />
 
               <uses-feature
                   android:name="android.hardware.camera"
@@ -225,8 +215,11 @@ jobs:
                       android:exported="true">
 
                       <intent-filter>
-                          <action android:name="android.intent.action.MAIN" />
-                          <category android:name="android.intent.category.LAUNCHER" />
+                          <action
+                              android:name="android.intent.action.MAIN" />
+
+                          <category
+                              android:name="android.intent.category.LAUNCHER" />
                       </intent-filter>
 
                   </activity>
@@ -236,34 +229,25 @@ jobs:
           </manifest>
           EOF
 
-          # -----------------------------------------------------
-          # strings.xml
-          # -----------------------------------------------------
-
           cat > app/src/main/res/values/strings.xml <<'EOF'
           <?xml version="1.0" encoding="utf-8"?>
+
           <resources>
               <string name="app_name">Camerrapro AI Camera</string>
           </resources>
           EOF
 
-          # -----------------------------------------------------
-          # colors.xml
-          # -----------------------------------------------------
-
           cat > app/src/main/res/values/colors.xml <<'EOF'
           <?xml version="1.0" encoding="utf-8"?>
+
           <resources>
               <color name="black">#000000</color>
               <color name="white">#FFFFFF</color>
-              <color name="camera_surface">#090909</color>
+              <color name="camera_background">#090909</color>
+              <color name="camera_surface">#151515</color>
               <color name="camera_accent">#FFFFFF</color>
           </resources>
           EOF
-
-          # -----------------------------------------------------
-          # styles.xml
-          # -----------------------------------------------------
 
           cat > app/src/main/res/values/styles.xml <<'EOF'
           <?xml version="1.0" encoding="utf-8"?>
@@ -275,20 +259,27 @@ jobs:
                   parent="Theme.Material3.Dark.NoActionBar">
 
                   <item name="android:fontFamily">sans</item>
-                  <item name="android:windowLightStatusBar">false</item>
-                  <item name="android:statusBarColor">@android:color/black</item>
-                  <item name="android:navigationBarColor">@android:color/black</item>
-                  <item name="android:windowActionModeOverlay">true</item>
-                  <item name="android:windowNoTitle">true</item>
+
+                  <item name="android:windowLightStatusBar">
+                      false
+                  </item>
+
+                  <item name="android:statusBarColor">
+                      @android:color/black
+                  </item>
+
+                  <item name="android:navigationBarColor">
+                      @android:color/black
+                  </item>
+
+                  <item name="android:windowNoTitle">
+                      true
+                  </item>
 
               </style>
 
           </resources>
           EOF
-
-          # -----------------------------------------------------
-          # Premium camera logo
-          # -----------------------------------------------------
 
           cat > app/src/main/res/drawable/ic_camera_logo.xml <<'EOF'
           <?xml version="1.0" encoding="utf-8"?>
@@ -306,26 +297,40 @@ jobs:
 
               <path
                   android:fillColor="#FFFFFF"
-                  android:pathData="M27,35 L35,25 L73,25 L81,35 L92,35 L92,83 L16,83 L16,35 Z" />
+                  android:pathData="
+                      M27,35
+                      L35,25
+                      L73,25
+                      L81,35
+                      L92,35
+                      L92,83
+                      L16,83
+                      L16,35
+                      Z" />
 
               <path
                   android:fillColor="#090909"
-                  android:pathData="M54,38 A16,16 0,1 0,54,70 A16,16 0,1 0,54,38" />
+                  android:pathData="
+                      M54,38
+                      A16,16 0,1 0,54,70
+                      A16,16 0,1 0,54,38" />
 
               <path
                   android:fillColor="#FFFFFF"
-                  android:pathData="M54,43 A11,11 0,1 0,54,65 A11,11 0,1 0,54,43" />
+                  android:pathData="
+                      M54,43
+                      A11,11 0,1 0,54,65
+                      A11,11 0,1 0,54,43" />
 
               <path
                   android:fillColor="#090909"
-                  android:pathData="M82,42 A4,4 0,1 0,82,50 A4,4 0,1 0,82,42" />
+                  android:pathData="
+                      M82,42
+                      A4,4 0,1 0,82,50
+                      A4,4 0,1 0,82,42" />
 
           </vector>
           EOF
-
-          # -----------------------------------------------------
-          # MainActivity.kt
-          # -----------------------------------------------------
 
           cat > app/src/main/java/com/camerrapro/aijavadevs/MainActivity.kt <<'EOF'
           package com.camerrapro.aijavadevs
@@ -335,19 +340,20 @@ jobs:
           import android.content.pm.PackageManager
           import android.graphics.Color
           import android.media.MediaActionSound
-          import android.net.Uri
           import android.os.Bundle
           import android.os.CountDownTimer
           import android.provider.MediaStore
           import android.view.Gravity
           import android.view.MotionEvent
-          import android.view.View
-          import android.view.ViewGroup
-          import android.widget.*
+          import android.widget.FrameLayout
+          import android.widget.LinearLayout
+          import android.widget.TextView
+          import android.widget.Toast
           import androidx.activity.result.contract.ActivityResultContracts
           import androidx.appcompat.app.AppCompatActivity
           import androidx.camera.core.Camera
           import androidx.camera.core.CameraSelector
+          import androidx.camera.core.FocusMeteringAction
           import androidx.camera.core.ImageCapture
           import androidx.camera.core.ImageCaptureException
           import androidx.camera.core.Preview
@@ -355,7 +361,8 @@ jobs:
           import androidx.camera.view.PreviewView
           import androidx.core.content.ContextCompat
           import java.text.SimpleDateFormat
-          import java.util.*
+          import java.util.Date
+          import java.util.Locale
           import java.util.concurrent.ExecutorService
           import java.util.concurrent.Executors
           import kotlin.math.max
@@ -368,7 +375,9 @@ jobs:
               private lateinit var camera: Camera
               private lateinit var cameraExecutor: ExecutorService
 
-              private var lensFacing = CameraSelector.LENS_FACING_BACK
+              private var lensFacing =
+                  CameraSelector.LENS_FACING_BACK
+
               private var flashEnabled = false
               private var timerSeconds = 0
               private var currentZoom = 1f
@@ -378,10 +387,11 @@ jobs:
               private lateinit var zoomText: TextView
               private lateinit var focusText: TextView
 
-              private val requestPermission =
+              private val cameraPermissionLauncher =
                   registerForActivityResult(
                       ActivityResultContracts.RequestPermission()
                   ) { granted ->
+
                       if (granted) {
                           startCamera()
                       } else {
@@ -393,13 +403,16 @@ jobs:
                       }
                   }
 
-              override fun onCreate(savedInstanceState: Bundle?) {
+              override fun onCreate(
+                  savedInstanceState: Bundle?
+              ) {
                   super.onCreate(savedInstanceState)
 
                   window.statusBarColor = Color.BLACK
                   window.navigationBarColor = Color.BLACK
 
-                  cameraExecutor = Executors.newSingleThreadExecutor()
+                  cameraExecutor =
+                      Executors.newSingleThreadExecutor()
 
                   buildCameraUI()
 
@@ -411,7 +424,9 @@ jobs:
                   ) {
                       startCamera()
                   } else {
-                      requestPermission.launch(Manifest.permission.CAMERA)
+                      cameraPermissionLauncher.launch(
+                          Manifest.permission.CAMERA
+                      )
                   }
               }
 
@@ -432,14 +447,28 @@ jobs:
                       )
                   )
 
-                  // Top gradient-style dark toolbar
                   val topBar = LinearLayout(this)
 
-                  topBar.orientation = LinearLayout.HORIZONTAL
-                  topBar.gravity = Gravity.CENTER_VERTICAL
-                  topBar.setPadding(24, 30, 24, 10)
+                  topBar.orientation =
+                      LinearLayout.HORIZONTAL
+
+                  topBar.gravity =
+                      Gravity.CENTER_VERTICAL
+
+                  topBar.setPadding(
+                      24,
+                      28,
+                      24,
+                      8
+                  )
+
                   topBar.setBackgroundColor(
-                      Color.argb(90, 0, 0, 0)
+                      Color.argb(
+                          100,
+                          0,
+                          0,
+                          0
+                      )
                   )
 
                   val brand = TextView(this)
@@ -458,30 +487,41 @@ jobs:
                       )
                   )
 
-                  flashButton = createTopButton("⚡")
+                  flashButton =
+                      createTopButton("Flash")
 
                   flashButton.setOnClickListener {
-                      flashEnabled = !flashEnabled
+
+                      flashEnabled =
+                          !flashEnabled
 
                       flashButton.text =
-                          if (flashEnabled) "⚡ ON" else "⚡"
+                          if (flashEnabled) {
+                              "Flash On"
+                          } else {
+                              "Flash"
+                          }
 
-                      camera.cameraControl.enableTorch(
-                          flashEnabled
-                      )
+                      if (::camera.isInitialized) {
+                          camera.cameraControl.enableTorch(
+                              flashEnabled
+                          )
+                      }
                   }
 
                   topBar.addView(
                       flashButton,
                       LinearLayout.LayoutParams(
-                          90,
+                          95,
                           70
                       )
                   )
 
-                  timerButton = createTopButton("⏱")
+                  timerButton =
+                      createTopButton("Timer")
 
                   timerButton.setOnClickListener {
+
                       timerSeconds =
                           when (timerSeconds) {
                               0 -> 3
@@ -490,16 +530,17 @@ jobs:
                           }
 
                       timerButton.text =
-                          if (timerSeconds == 0)
-                              "⏱"
-                          else
-                              "⏱ ${timerSeconds}s"
+                          if (timerSeconds == 0) {
+                              "Timer"
+                          } else {
+                              "Timer ${timerSeconds}s"
+                          }
                   }
 
                   topBar.addView(
                       timerButton,
                       LinearLayout.LayoutParams(
-                          100,
+                          110,
                           70
                       )
                   )
@@ -508,18 +549,17 @@ jobs:
                       topBar,
                       FrameLayout.LayoutParams(
                           -1,
-                          100,
+                          105,
                           Gravity.TOP
                       )
                   )
 
-                  // Center focus indicator
                   focusText = TextView(this)
 
-                  focusText.text = "＋"
+                  focusText.text = "+"
                   focusText.textSize = 38f
-                  focusText.setTextColor(Color.WHITE)
                   focusText.gravity = Gravity.CENTER
+                  focusText.setTextColor(Color.WHITE)
 
                   root.addView(
                       focusText,
@@ -530,59 +570,89 @@ jobs:
                       )
                   )
 
-                  // Zoom controls
                   val zoomBar = LinearLayout(this)
 
-                  zoomBar.orientation = LinearLayout.HORIZONTAL
-                  zoomBar.gravity = Gravity.CENTER
+                  zoomBar.orientation =
+                      LinearLayout.HORIZONTAL
 
-                  zoomText = createZoomButton("1×")
+                  zoomBar.gravity =
+                      Gravity.CENTER
+
+                  zoomText =
+                      createZoomButton("1x")
 
                   zoomText.setOnClickListener {
-                      setZoom(
-                          if (currentZoom < 3f)
-                              min(3f, currentZoom + 0.5f)
-                          else
-                              1f
-                      )
+
+                      val nextZoom =
+                          when {
+                              currentZoom < 2f ->
+                                  2f
+
+                              currentZoom < 3f ->
+                                  3f
+
+                              else ->
+                                  1f
+                          }
+
+                      setZoom(nextZoom)
                   }
 
                   zoomBar.addView(
                       zoomText,
                       LinearLayout.LayoutParams(
                           110,
-                          80
+                          70
                       )
                   )
 
-                  val zoomLayout =
+                  val zoomParams =
                       FrameLayout.LayoutParams(
                           -1,
-                          90,
+                          80,
                           Gravity.BOTTOM
                       )
 
-                  zoomLayout.bottomMargin = 250
+                  zoomParams.bottomMargin = 250
 
-                  root.addView(zoomBar, zoomLayout)
-
-                  // Bottom controls
-                  val bottom = LinearLayout(this)
-
-                  bottom.orientation = LinearLayout.HORIZONTAL
-                  bottom.gravity = Gravity.CENTER_VERTICAL
-                  bottom.setPadding(28, 20, 28, 30)
-                  bottom.setBackgroundColor(
-                      Color.argb(210, 0, 0, 0)
+                  root.addView(
+                      zoomBar,
+                      zoomParams
                   )
 
-                  val gallery = createBottomButton("▣")
+                  val bottomBar =
+                      LinearLayout(this)
+
+                  bottomBar.orientation =
+                      LinearLayout.HORIZONTAL
+
+                  bottomBar.gravity =
+                      Gravity.CENTER_VERTICAL
+
+                  bottomBar.setPadding(
+                      25,
+                      15,
+                      25,
+                      30
+                  )
+
+                  bottomBar.setBackgroundColor(
+                      Color.argb(
+                          215,
+                          0,
+                          0,
+                          0
+                      )
+                  )
+
+                  val gallery =
+                      createBottomButton("Gallery")
 
                   gallery.setOnClickListener {
                       openGallery()
                   }
 
-                  bottom.addView(
+                  bottomBar.addView(
                       gallery,
                       LinearLayout.LayoutParams(
                           100,
@@ -593,52 +663,62 @@ jobs:
                   val captureContainer =
                       FrameLayout(this)
 
-                  val captureButton = TextView(this)
+                  val capture =
+                      TextView(this)
 
-                  captureButton.text = "●"
-                  captureButton.textSize = 62f
-                  captureButton.gravity = Gravity.CENTER
-                  captureButton.setTextColor(Color.WHITE)
+                  capture.text = "Capture"
+                  capture.textSize = 17f
+                  capture.gravity =
+                      Gravity.CENTER
+                  capture.setTextColor(Color.BLACK)
+                  capture.setBackgroundColor(
+                      Color.WHITE
+                  )
 
-                  captureButton.setOnClickListener {
+                  capture.setOnClickListener {
                       captureWithTimer()
                   }
 
                   captureContainer.addView(
-                      captureButton,
+                      capture,
                       FrameLayout.LayoutParams(
                           150,
-                          150,
+                          90,
                           Gravity.CENTER
                       )
                   )
 
-                  bottom.addView(
+                  bottomBar.addView(
                       captureContainer,
                       LinearLayout.LayoutParams(
                           0,
-                          150,
+                          120,
                           1f
                       )
                   )
 
                   val switchCamera =
-                      createBottomButton("↻")
+                      createBottomButton("Switch")
 
                   switchCamera.setOnClickListener {
+
                       lensFacing =
                           if (
                               lensFacing ==
-                              CameraSelector.LENS_FACING_BACK
-                          )
-                              CameraSelector.LENS_FACING_FRONT
-                          else
-                              CameraSelector.LENS_FACING_BACK
+                              CameraSelector
+                                  .LENS_FACING_BACK
+                          ) {
+                              CameraSelector
+                                  .LENS_FACING_FRONT
+                          } else {
+                              CameraSelector
+                                  .LENS_FACING_BACK
+                          }
 
                       startCamera()
                   }
 
-                  bottom.addView(
+                  bottomBar.addView(
                       switchCamera,
                       LinearLayout.LayoutParams(
                           100,
@@ -647,27 +727,31 @@ jobs:
                   )
 
                   root.addView(
-                      bottom,
+                      bottomBar,
                       FrameLayout.LayoutParams(
                           -1,
-                          220,
+                          190,
                           Gravity.BOTTOM
                       )
                   )
 
-                  // Tap-to-focus
-                  previewView.setOnTouchListener { _, event ->
+                  previewView.setOnTouchListener {
+                      _, event ->
 
                       if (
                           event.action ==
                           MotionEvent.ACTION_UP
                       ) {
-                          focusText.animate()
+
+                          focusText
+                              .animate()
                               .scaleX(1.25f)
                               .scaleY(1.25f)
                               .setDuration(100)
                               .withEndAction {
-                                  focusText.animate()
+
+                                  focusText
+                                      .animate()
                                       .scaleX(1f)
                                       .scaleY(1f)
                                       .setDuration(150)
@@ -675,25 +759,25 @@ jobs:
                               }
                               .start()
 
-                          try {
-                              val factory =
-                                  previewView.meteringPointFactory
+                          if (::camera.isInitialized) {
 
                               val point =
-                                  factory.createPoint(
-                                      event.x,
-                                      event.y
-                                  )
+                                  previewView
+                                      .meteringPointFactory
+                                      .createPoint(
+                                          event.x,
+                                          event.y
+                                      )
 
                               val action =
-                                  androidx.camera.core.FocusMeteringAction.Builder(
-                                      point
-                                  ).build()
+                                  FocusMeteringAction
+                                      .Builder(point)
+                                      .build()
 
-                              camera.cameraControl.startFocusAndMetering(
-                                  action
-                              )
-                          } catch (_: Exception) {
+                              camera.cameraControl
+                                  .startFocusAndMetering(
+                                      action
+                                  )
                           }
                       }
 
@@ -703,55 +787,77 @@ jobs:
                   setContentView(root)
               }
 
-              private fun createTopButton(text: String): TextView {
-                  val v = TextView(this)
+              private fun createTopButton(
+                  text: String
+              ): TextView {
 
-                  v.text = text
-                  v.textSize = 15f
-                  v.gravity = Gravity.CENTER
-                  v.setTextColor(Color.WHITE)
+                  val view =
+                      TextView(this)
 
-                  return v
+                  view.text = text
+                  view.textSize = 14f
+                  view.gravity = Gravity.CENTER
+                  view.setTextColor(Color.WHITE)
+
+                  return view
               }
 
-              private fun createBottomButton(text: String): TextView {
-                  val v = TextView(this)
+              private fun createBottomButton(
+                  text: String
+              ): TextView {
 
-                  v.text = text
-                  v.textSize = 30f
-                  v.gravity = Gravity.CENTER
-                  v.setTextColor(Color.WHITE)
+                  val view =
+                      TextView(this)
 
-                  return v
+                  view.text = text
+                  view.textSize = 14f
+                  view.gravity = Gravity.CENTER
+                  view.setTextColor(Color.WHITE)
+
+                  return view
               }
 
-              private fun createZoomButton(text: String): TextView {
-                  val v = TextView(this)
+              private fun createZoomButton(
+                  text: String
+              ): TextView {
 
-                  v.text = text
-                  v.textSize = 16f
-                  v.gravity = Gravity.CENTER
-                  v.setTextColor(Color.WHITE)
-                  v.setBackgroundColor(
-                      Color.argb(150, 0, 0, 0)
+                  val view =
+                      TextView(this)
+
+                  view.text = text
+                  view.textSize = 16f
+                  view.gravity = Gravity.CENTER
+                  view.setTextColor(Color.WHITE)
+
+                  view.setBackgroundColor(
+                      Color.argb(
+                          160,
+                          0,
+                          0,
+                          0
+                      )
                   )
 
-                  return v
+                  return view
               }
 
               private fun startCamera() {
 
-                  val future =
-                      ProcessCameraProvider.getInstance(this)
+                  val cameraProviderFuture =
+                      ProcessCameraProvider
+                          .getInstance(this)
 
-                  future.addListener({
+                  cameraProviderFuture.addListener({
 
                       val provider =
-                          future.get()
+                          cameraProviderFuture.get()
 
                       val selector =
-                          CameraSelector.Builder()
-                              .requireLensFacing(lensFacing)
+                          CameraSelector
+                              .Builder()
+                              .requireLensFacing(
+                                  lensFacing
+                              )
                               .build()
 
                       val preview =
@@ -759,19 +865,24 @@ jobs:
                               .build()
 
                       preview.setSurfaceProvider(
-                          previewView.surfaceProvider
+                          previewView
+                              .surfaceProvider
                       )
 
                       imageCapture =
                           ImageCapture.Builder()
                               .setCaptureMode(
-                                  ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
+                                  ImageCapture
+                                      .CAPTURE_MODE_MINIMIZE_LATENCY
                               )
                               .setFlashMode(
-                                  if (flashEnabled)
-                                      ImageCapture.FLASH_MODE_ON
-                                  else
-                                      ImageCapture.FLASH_MODE_OFF
+                                  if (flashEnabled) {
+                                      ImageCapture
+                                          .FLASH_MODE_ON
+                                  } else {
+                                      ImageCapture
+                                          .FLASH_MODE_OFF
+                                  }
                               )
                               .build()
 
@@ -787,15 +898,16 @@ jobs:
                                   imageCapture
                               )
 
-                          camera.cameraControl.setZoomRatio(
-                              currentZoom
-                          )
+                          camera.cameraControl
+                              .setZoomRatio(
+                                  currentZoom
+                              )
 
-                      } catch (e: Exception) {
+                      } catch (exception: Exception) {
 
                           Toast.makeText(
                               this,
-                              "Camera initialization failed",
+                              "Unable to start camera",
                               Toast.LENGTH_SHORT
                           ).show()
                       }
@@ -803,17 +915,24 @@ jobs:
                   }, ContextCompat.getMainExecutor(this))
               }
 
-              private fun setZoom(value: Float) {
+              private fun setZoom(
+                  value: Float
+              ) {
 
-                  currentZoom = max(1f, min(value, 8f))
+                  currentZoom =
+                      max(
+                          1f,
+                          min(value, 8f)
+                      )
 
                   zoomText.text =
-                      "${currentZoom.toInt()}×"
+                      "${currentZoom.toInt()}x"
 
                   if (::camera.isInitialized) {
-                      camera.cameraControl.setZoomRatio(
-                          currentZoom
-                      )
+                      camera.cameraControl
+                          .setZoomRatio(
+                              currentZoom
+                          )
                   }
               }
 
@@ -828,12 +947,9 @@ jobs:
                       return
                   }
 
-                  val seconds =
-                      timerSeconds
-
                   object : CountDownTimer(
-                      seconds * 1000L,
-                      1000
+                      timerSeconds * 1000L,
+                      1000L
                   ) {
 
                       override fun onTick(
@@ -841,12 +957,16 @@ jobs:
                       ) {
 
                           focusText.text =
-                              "${(millisUntilFinished / 1000) + 1}"
+                              (
+                                  millisUntilFinished /
+                                      1000L + 1L
+                                  ).toString()
                       }
 
                       override fun onFinish() {
 
-                          focusText.text = "＋"
+                          focusText.text = "+"
+
                           takePhoto()
                       }
 
@@ -855,7 +975,7 @@ jobs:
 
               private fun takePhoto() {
 
-                  val name =
+                  val timestamp =
                       SimpleDateFormat(
                           "yyyyMMdd_HHmmss",
                           Locale.US
@@ -865,12 +985,14 @@ jobs:
                       ContentValues().apply {
 
                           put(
-                              MediaStore.Images.Media.DISPLAY_NAME,
-                              "Camerrapro_$name.jpg"
+                              MediaStore.Images.Media
+                                  .DISPLAY_NAME,
+                              "Camerrapro_$timestamp.jpg"
                           )
 
                           put(
-                              MediaStore.Images.Media.MIME_TYPE,
+                              MediaStore.Images.Media
+                                  .MIME_TYPE,
                               "image/jpeg"
                           )
 
@@ -878,55 +1000,68 @@ jobs:
                               android.os.Build.VERSION.SDK_INT >=
                               android.os.Build.VERSION_CODES.Q
                           ) {
+
                               put(
-                                  MediaStore.Images.Media.RELATIVE_PATH,
+                                  MediaStore.Images.Media
+                                      .RELATIVE_PATH,
                                   "Pictures/Camerrapro"
                               )
                           }
                       }
 
                   val output =
-                      ImageCapture.OutputFileOptions.Builder(
-                          contentResolver,
-                          MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                          values
-                      ).build()
+                      ImageCapture
+                          .OutputFileOptions
+                          .Builder(
+                              contentResolver,
+                              MediaStore.Images.Media
+                                  .EXTERNAL_CONTENT_URI,
+                              values
+                          )
+                          .build()
 
                   imageCapture.takePicture(
                       output,
                       cameraExecutor,
                       object :
-                          ImageCapture.OnImageSavedCallback {
+                          ImageCapture
+                              .OnImageSavedCallback {
 
                           override fun onImageSaved(
                               outputFileResults:
-                              ImageCapture.OutputFileResults
+                                  ImageCapture
+                                      .OutputFileResults
                           ) {
 
                               runOnUiThread {
 
-                                  // Native camera shutter sound
                                   try {
+
                                       val sound =
                                           MediaActionSound()
 
                                       sound.play(
-                                          MediaActionSound.SHUTTER_CLICK
+                                          MediaActionSound
+                                              .SHUTTER_CLICK
                                       )
+
                                   } catch (_: Exception) {
                                   }
 
                                   Toast.makeText(
                                       this@MainActivity,
-                                      "📸 Photo saved",
+                                      "Photo saved",
                                       Toast.LENGTH_SHORT
                                   ).show()
 
-                                  focusText.animate()
+                                  focusText
+                                      .animate()
                                       .alpha(0.2f)
                                       .setDuration(80)
                                       .withEndAction {
-                                          focusText.animate()
+
+                                          focusText
+                                              .animate()
                                               .alpha(1f)
                                               .setDuration(120)
                                               .start()
@@ -937,14 +1072,14 @@ jobs:
 
                           override fun onError(
                               exception:
-                              ImageCaptureException
+                                  ImageCaptureException
                           ) {
 
                               runOnUiThread {
 
                                   Toast.makeText(
                                       this@MainActivity,
-                                      "Failed: ${exception.message}",
+                                      "Photo capture failed",
                                       Toast.LENGTH_SHORT
                                   ).show()
                               }
@@ -959,12 +1094,15 @@ jobs:
 
                       val intent =
                           android.content.Intent(
-                              android.content.Intent.ACTION_VIEW
+                              android.content.Intent
+                                  .ACTION_VIEW
                           )
 
                       intent.type = "image/*"
+
                       intent.flags =
-                          android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                          android.content.Intent
+                              .FLAG_ACTIVITY_NEW_TASK
 
                       startActivity(intent)
 
@@ -972,24 +1110,22 @@ jobs:
 
                       Toast.makeText(
                           this,
-                          "Gallery not available",
+                          "Gallery is not available",
                           Toast.LENGTH_SHORT
                       ).show()
                   }
               }
 
               override fun onDestroy() {
+
                   super.onDestroy()
+
                   cameraExecutor.shutdown()
               }
           }
           EOF
 
-          # -----------------------------------------------------
-          # Download Gradle
-          # -----------------------------------------------------
-
-          echo "📦 Installing Gradle ${GRADLE_VERSION}"
+          echo "Downloading Gradle ${GRADLE_VERSION}..."
 
           curl -L \
             -o /tmp/gradle.zip \
@@ -1005,53 +1141,36 @@ jobs:
 
           gradle --version
 
-          # -----------------------------------------------------
-          # Generate Gradle Wrapper
-          # -----------------------------------------------------
-
           gradle wrapper \
             --gradle-version "${GRADLE_VERSION}" \
             --distribution-type bin
 
           chmod +x gradlew
 
-          # -----------------------------------------------------
-          # Build
-          # -----------------------------------------------------
-
-          echo "=========================================="
-          echo "🔨 Building Release APK..."
-          echo "=========================================="
+          echo "Building release APK..."
 
           ./gradlew \
             --no-daemon \
             --stacktrace \
             assembleRelease
 
-          echo "=========================================="
-          echo "✅ BUILD COMPLETE"
-          echo "=========================================="
+          echo "Build completed."
 
-          ls -lh app/build/outputs/apk/release/
+          ls -lh \
+            app/build/outputs/apk/release/
 
-      # ---------------------------------------------------------
-      # 4. Upload APK artifact
-      # ---------------------------------------------------------
-      - name: 📦 Upload APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Camerrapro-AI-Camera
           path: app/build/outputs/apk/release/*.apk
           if-no-files-found: error
 
-      # ---------------------------------------------------------
-      # 5. Create GitHub Release
-      # ---------------------------------------------------------
-      - name: 🚀 Create GitHub Release
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: "v1.0.${{ github.run_number }}"
-          name: "📸 Camerrapro AI Camera v1.0.${{ github.run_number }}"
+          name: "Camerrapro AI Camera v1.0.${{ github.run_number }}"
           generate_release_notes: true
           files: |
             app/build/outputs/apk/release/*.apk
