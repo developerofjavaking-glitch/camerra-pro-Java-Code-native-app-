@@ -27,7 +27,7 @@ jobs:
           mkdir -p app/src/main/res/drawable
           mkdir -p app/src/main/res/values
 
-          # --- 1. Gradle Properties (Fixes AndroidX build error) ---
+          # --- 1. Gradle Properties ---
           cat << 'EOF' > gradle.properties
           android.useAndroidX=true
           org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
@@ -89,6 +89,7 @@ jobs:
           }
 
           dependencies {
+              implementation "androidx.appcompat:appcompat:1.6.1"
               implementation "androidx.camera:camera-core:1.3.4"
               implementation "androidx.camera:camera-camera2:1.3.4"
               implementation "androidx.camera:camera-lifecycle:1.3.4"
@@ -116,7 +117,7 @@ jobs:
           cat << 'EOF' > app/src/main/res/values/themes.xml
           <?xml version="1.0" encoding="utf-8"?>
           <resources>
-              <style name="AppTheme" parent="@android:style/Theme.Material.NoActionBar">
+              <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
                   <item name="android:statusBarColor">#000000</item>
                   <item name="android:navigationBarColor">#000000</item>
                   <item name="android:windowLightStatusBar">false</item>
@@ -124,8 +125,7 @@ jobs:
           </resources>
           EOF
 
-          # --- 4. Beautiful Vector Icons ---
-          # App Logo: Modern Gold/Cyan Aperture
+          # --- 4. Vector Drawables & Icons ---
           cat << 'EOF' > app/src/main/res/drawable/ic_camera_logo.xml
           <vector xmlns:android="http://schemas.android.com/apk/res/android"
               android:width="108dp"
@@ -160,7 +160,6 @@ jobs:
           </vector>
           EOF
 
-          # Flash On Icon
           cat << 'EOF' > app/src/main/res/drawable/ic_flash_on.xml
           <vector xmlns:android="http://schemas.android.com/apk/res/android"
               android:width="28dp"
@@ -173,7 +172,6 @@ jobs:
           </vector>
           EOF
 
-          # Flash Off Icon
           cat << 'EOF' > app/src/main/res/drawable/ic_flash_off.xml
           <vector xmlns:android="http://schemas.android.com/apk/res/android"
               android:width="28dp"
@@ -186,7 +184,6 @@ jobs:
           </vector>
           EOF
 
-          # Switch Camera Icon
           cat << 'EOF' > app/src/main/res/drawable/ic_switch_cam.xml
           <vector xmlns:android="http://schemas.android.com/apk/res/android"
               android:width="28dp"
@@ -199,7 +196,6 @@ jobs:
           </vector>
           EOF
 
-          # Gallery Icon
           cat << 'EOF' > app/src/main/res/drawable/ic_gallery.xml
           <vector xmlns:android="http://schemas.android.com/apk/res/android"
               android:width="28dp"
@@ -212,7 +208,6 @@ jobs:
           </vector>
           EOF
 
-          # Tap Focus Indicator
           cat << 'EOF' > app/src/main/res/drawable/ic_focus_ring.xml
           <vector xmlns:android="http://schemas.android.com/apk/res/android"
               android:width="70dp"
@@ -260,15 +255,13 @@ jobs:
           </manifest>
           EOF
 
-          # --- 6. MainActivity Java Code ---
+          # --- 6. MainActivity Java Code (Extends AppCompatActivity) ---
           cat << 'EOF' > app/src/main/java/com/camerrapro/aijavadevs/MainActivity.java
           package com.camerrapro.aijavadevs;
 
           import android.Manifest;
           import android.animation.Animator;
           import android.animation.AnimatorListenerAdapter;
-          import android.app.Activity;
-          import android.content.ContentResolver;
           import android.content.ContentValues;
           import android.content.Context;
           import android.content.Intent;
@@ -299,6 +292,7 @@ jobs:
           import android.widget.Toast;
 
           import androidx.annotation.NonNull;
+          import androidx.appcompat.app.AppCompatActivity;
           import androidx.camera.core.Camera;
           import androidx.camera.core.CameraSelector;
           import androidx.camera.core.FocusMeteringAction;
@@ -319,7 +313,7 @@ jobs:
           import java.util.Locale;
           import java.util.concurrent.TimeUnit;
 
-          public class MainActivity extends Activity {
+          public class MainActivity extends AppCompatActivity {
 
               private static final int CAMERA_PERMISSION_CODE = 101;
 
@@ -378,7 +372,6 @@ jobs:
                   FrameLayout root = new FrameLayout(this);
                   root.setBackgroundColor(Color.BLACK);
 
-                  // Camera Preview
                   previewView = new PreviewView(this);
                   previewView.setScaleType(PreviewView.ScaleType.FILL_CENTER);
                   root.addView(previewView, new FrameLayout.LayoutParams(
@@ -386,13 +379,11 @@ jobs:
                           ViewGroup.LayoutParams.MATCH_PARENT
                   ));
 
-                  // Tap Focus Reticle
                   focusIndicator = new ImageView(this);
                   focusIndicator.setImageResource(R.drawable.ic_focus_ring);
                   focusIndicator.setVisibility(View.GONE);
                   root.addView(focusIndicator, new FrameLayout.LayoutParams(dp(70), dp(70)));
 
-                  // Shutter Flash Blink Effect (Screen flash)
                   shutterFlashOverlay = new View(this);
                   shutterFlashOverlay.setBackgroundColor(Color.WHITE);
                   shutterFlashOverlay.setAlpha(0f);
@@ -401,7 +392,6 @@ jobs:
                           ViewGroup.LayoutParams.MATCH_PARENT
                   ));
 
-                  // Top Action Bar
                   LinearLayout topBar = new LinearLayout(this);
                   topBar.setOrientation(LinearLayout.HORIZONTAL);
                   topBar.setGravity(Gravity.CENTER_VERTICAL);
@@ -419,14 +409,12 @@ jobs:
                   brandTitle.setTypeface(null, Typeface.BOLD);
                   topBar.addView(brandTitle, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
-                  // Flash Button
                   flashIcon = new ImageView(this);
                   flashIcon.setImageResource(R.drawable.ic_flash_off);
                   flashIcon.setPadding(dp(8), dp(8), dp(8), dp(8));
                   flashIcon.setOnClickListener(v -> toggleFlash());
                   topBar.addView(flashIcon, new LinearLayout.LayoutParams(dp(44), dp(44)));
 
-                  // Timer Selector Button
                   timerBadge = new TextView(this);
                   timerBadge.setText("OFF");
                   timerBadge.setTextColor(Color.WHITE);
@@ -445,7 +433,6 @@ jobs:
                           Gravity.TOP
                   ));
 
-                  // Countdown Large Overlay
                   countdownOverlay = new TextView(this);
                   countdownOverlay.setText("");
                   countdownOverlay.setTextColor(Color.WHITE);
@@ -459,13 +446,11 @@ jobs:
                           Gravity.CENTER
                   ));
 
-                  // Bottom Controls Panel
                   LinearLayout bottomPanel = new LinearLayout(this);
                   bottomPanel.setOrientation(LinearLayout.VERTICAL);
                   bottomPanel.setPadding(dp(20), dp(12), dp(20), dp(24));
                   bottomPanel.setBackground(createGradient(Color.TRANSPARENT, Color.parseColor("#E6000000")));
 
-                  // Zoom Controls
                   LinearLayout zoomLayout = new LinearLayout(this);
                   zoomLayout.setGravity(Gravity.CENTER_VERTICAL);
 
@@ -497,12 +482,10 @@ jobs:
                   zoomLayout.addView(zoomSeekBar, new LinearLayout.LayoutParams(0, dp(36), 1f));
                   bottomPanel.addView(zoomLayout);
 
-                  // Bottom Action Buttons: Gallery - Shutter - Flip Camera
                   LinearLayout actionsRow = new LinearLayout(this);
                   actionsRow.setGravity(Gravity.CENTER_VERTICAL);
                   actionsRow.setPadding(0, dp(12), 0, dp(4));
 
-                  // Gallery Button
                   ImageView galleryBtn = new ImageView(this);
                   galleryBtn.setImageResource(R.drawable.ic_gallery);
                   galleryBtn.setBackground(createPillDrawable(Color.parseColor("#33FFFFFF"), dp(24)));
@@ -510,7 +493,6 @@ jobs:
                   galleryBtn.setOnClickListener(v -> openGallery());
                   actionsRow.addView(galleryBtn, new LinearLayout.LayoutParams(dp(50), dp(50)));
 
-                  // Shutter Button Container
                   FrameLayout shutterContainer = new FrameLayout(this);
                   View outerRing = new View(this);
                   outerRing.setBackground(createRingDrawable(Color.WHITE, dp(4), dp(40)));
@@ -522,7 +504,6 @@ jobs:
 
                   shutterContainer.setOnClickListener(v -> {
                       triggerHaptic();
-                      // Recoil animation
                       shutterContainer.animate().scaleX(0.88f).scaleY(0.88f).setDuration(80)
                               .withEndAction(() -> shutterContainer.animate().scaleX(1f).scaleY(1f).setDuration(80).start());
                       capturePhoto();
@@ -531,7 +512,6 @@ jobs:
                   LinearLayout.LayoutParams shutterParams = new LinearLayout.LayoutParams(0, dp(86), 1f);
                   actionsRow.addView(shutterContainer, shutterParams);
 
-                  // Flip Camera Button
                   ImageView flipBtn = new ImageView(this);
                   flipBtn.setImageResource(R.drawable.ic_switch_cam);
                   flipBtn.setBackground(createPillDrawable(Color.parseColor("#33FFFFFF"), dp(24)));
@@ -551,7 +531,6 @@ jobs:
                           Gravity.BOTTOM
                   ));
 
-                  // Tap to Focus Listener
                   previewView.setOnTouchListener((v, event) -> {
                       if (event.getAction() == MotionEvent.ACTION_UP) {
                           focusAt(event.getX(), event.getY());
@@ -569,16 +548,15 @@ jobs:
                           ProcessCameraProvider provider = future.get();
                           Preview preview = new Preview.Builder().build();
 
-                          // High Quality Capture Mode
                           imageCapture = new ImageCapture.Builder()
                                   .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
                                   .build();
 
                           provider.unbindAll();
+                          // "this" now correctly satisfies LifecycleOwner
                           camera = provider.bindToLifecycle(this, cameraSelector, preview, imageCapture);
                           preview.setSurfaceProvider(previewView.getSurfaceProvider());
 
-                          // Reset zoom
                           if (camera != null && camera.getCameraInfo().getZoomState().getValue() != null) {
                               float curZoom = camera.getCameraInfo().getZoomState().getValue().getZoomRatio();
                               zoomValueText.setText(String.format(Locale.US, "%.1fx", curZoom));
@@ -604,7 +582,6 @@ jobs:
                   cameraSound.play(MediaActionSound.FOCUS_COMPLETE);
                   triggerHaptic();
 
-                  // Animate Focus Indicator
                   focusIndicator.setX(x - (focusIndicator.getWidth() / 2f));
                   focusIndicator.setY(y - (focusIndicator.getHeight() / 2f));
                   focusIndicator.setVisibility(View.VISIBLE);
@@ -687,7 +664,6 @@ jobs:
               private void executeCapture() {
                   cameraSound.play(MediaActionSound.SHUTTER_CLICK);
 
-                  // Shutter white blink animation
                   shutterFlashOverlay.setAlpha(0.75f);
                   shutterFlashOverlay.animate().alpha(0f).setDuration(150).start();
 
@@ -696,7 +672,6 @@ jobs:
                   values.put(MediaStore.Images.Media.DISPLAY_NAME, "IMG_" + timestamp + ".jpg");
                   values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
 
-                  // Save directly to the DCIM/Camera directory (Primary gallery roll)
                   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                       values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_DCIM + "/Camera");
                       values.put(MediaStore.Images.Media.IS_PENDING, 1);
@@ -717,14 +692,12 @@ jobs:
                                   isCapturing = false;
                                   Uri savedUri = results.getSavedUri();
 
-                                  // Finalize Pending state on Android 10+ so gallery indexes it instantly
                                   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && savedUri != null) {
                                       ContentValues update = new ContentValues();
                                       update.put(MediaStore.Images.Media.IS_PENDING, 0);
                                       getContentResolver().update(savedUri, update, null, null);
                                   }
 
-                                  // Broadcast Media Scanner update
                                   if (savedUri != null) {
                                       sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, savedUri));
                                   }
